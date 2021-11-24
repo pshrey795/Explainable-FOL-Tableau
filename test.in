@@ -1,0 +1,1 @@
+val a = FOL.HENCE([FOL.NOT(FOL.ATOM("p",[FOL.FUN("f",[FOL.VAR("a")])])),FOL.ALL(FOL.VAR("x"),FOL.ATOM("p",[FOL.FUN("f",[FOL.VAR("x")])]))],FOL.ATOM("q",[FOL.VAR("b")]))
