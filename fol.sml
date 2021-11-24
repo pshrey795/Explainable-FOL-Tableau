@@ -112,7 +112,7 @@ struct
     | _                         => raise NotWFP)
     | CreateTableau(pred::predList,atomList,allList,depth) =
     case pred of
-    FF                          => raise NotWFA
+    FF                          => raise NotWFP
     | ATOM(s,ls)                => if checkAtom(NOT(pred),atomList) then TREE(pred,TREE(FF,EMPTY,EMPTY),EMPTY)
                                    else if checkAtom(pred,atomList) then CreateTableau(predList,atomList,allList,depth)
                                    else TREE(pred,CreateTableau(predList,pred::atomList,allList,depth+1),EMPTY)
@@ -131,15 +131,19 @@ struct
                                     | COND(a,b)     => TREE(pred,CreateTableau(a::NOT(b)::predList,atomList,allList,depth+1),EMPTY)
                                     | BIC(a,b)      => TREE(pred,CreateTableau(NOT(COND(a,b))::predList,atomList,allList,depth+1),CreateTableau(NOT(COND(b,a))::predList,atomList,allList,depth+1))
                                     | ITE(a,b,c)    => TREE(pred,CreateTableau(OR(NOT(a),NOT(b))::OR(a,NOT(c))::predList,atomList,allList,depth+1),EMPTY)
-                                    | ALL(x,b)      => let
+                                    | ALL(x,b)      =>  let
                                                             val freshTerm = CONST("b"^Int.toString(depth))
                                                             val freshName = "a"^Int.toString(depth)
                                                             val freshAtom = ATOM(freshName,[freshTerm])
                                                             val newList = substitute(freshTerm,x,NOT(b))::predList
                                                         in
-                                                            TREE(pred,CreateTableau(newList,freshAtom::atomList,allList,depth+1),EMPTY)
+                                                            (case x of 
+                                                            VAR(y)      => TREE(pred,CreateTableau(newList,freshAtom::atomList,allList,depth+1),EMPTY)
+                                                            | _         => raise NotVAR)
                                                         end
-                                    | EX(x,b)       => CreateTableau(predList,atomList,ALL(x,NOT(b))::allList,depth)
+                                    | EX(x,b)       => (case x of
+                                                        VAR(y)      => CreateTableau(predList,atomList,ALL(x,NOT(b))::allList,depth)
+                                                        | _         => raise NotVAR)
                                     | _             => raise NotWFP)
     | EX(x,p)                   =>  let
                                         val freshTerm = CONST("b"^Int.toString(depth))
@@ -271,6 +275,7 @@ struct
     fun getTableau(arg) = 
     case arg of
     HENCE(predlist,pred)    => mktableau(predlist,pred)
-    
 
 end
+
+open FOL;

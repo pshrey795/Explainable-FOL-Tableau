@@ -2,18 +2,33 @@ digraph{
 	nodesep = 0.5;
 	ranksep = 0.20;
 	node [shape=plaintext];
-	1 [texlbl="\underline{$\neg p(c())$ }"];
-	11 [texlbl="\underline{$p(c())$ }"];
-	111 [texlbl="\underline{$\bot$ }"];
+	1 [texlbl="\underline{$\neg p(a()) \vee q(a())$ }"];
+	11 [texlbl="\underline{$\neg p(a())$ }"];
+	111 [texlbl="\underline{$\neg q(a())$ }"];
+	1111 [texlbl="\underline{$\forall x[p(x) \vee q(x)]$ }"];
+	11111 [texlbl="\underline{$p(a()) \vee q(a())$ }"];
+	111111 [texlbl="\underline{$p(a())$ }"];
+	1111111 [texlbl="\underline{$\bot$ }"];
+	111112 [texlbl="\underline{$q(a())$ }"];
+	1111121 [texlbl="\underline{$\bot$ }"];
 	subgraph dir{
 		1 -> 11;
 		11 -> 111;
+		111 -> 1111;
+		1111 -> 11111;
+		11111 -> 111111;
+		11111 -> 111112;
+		111111 -> 1111111;
+		111112 -> 1111121;
 	}
 	subgraph ancestor{
 		edge [dir=back, color=blue style=dashed];
+		1 -> 111;
+		1111 -> 11111;
 	}
 	subgraph undir{
 		edge [dir=none, color=red];
-		11 -> 1;
+		111111 -> 11;
+		111112 -> 111;
 	}
 }
