@@ -73,8 +73,9 @@ struct
     | explodeTerms(t::termList,x,pred) = 
     let
         val newList = case t of 
-                      FUN(f,tl) => tl@termList
-                      | _       => termList
+                      FUN(f,tl)  => tl@termList
+                      | VAR(y)   => raise NotClosed
+                      | CONST(c) => termList
     in
         substitute(t,x,pred)::explodeTerms(newList,x,pred)
     end
@@ -93,7 +94,7 @@ struct
     | _                         => raise NotWFP)
     | CreateTableau(pred::predList,atomList,allList,depth) =
     case pred of
-    FF                          => TREE(FF,EMPTY,EMPTY)
+    FF                          => raise NotWFA
     | ATOM(s,ls)                => if checkAtom(NOT(pred),atomList) then TREE(pred,TREE(FF,EMPTY,EMPTY),EMPTY)
                                    else if checkAtom(pred,atomList) then CreateTableau(predList,atomList,allList,depth)
                                    else TREE(pred,CreateTableau(predList,pred::atomList,allList,depth+1),EMPTY)
@@ -128,27 +129,100 @@ struct
                                         val freshAtom = ATOM(freshName,[freshTerm])
                                         val newList = substitute(freshTerm,x,p)::predList
                                     in 
-                                        TREE(pred,EMPTY,CreateTableau(newList,freshAtom::atomList,allList,depth+1))
+                                        case x of
+                                        VAR(y)   => TREE(pred,CreateTableau(newList,freshAtom::atomList,allList,depth+1),EMPTY)
+                                        | _      => raise NotVAR
                                     end
-    | ALL(x,p)                  =>  TREE(pred,CreateTableau(predList,atomList,pred::allList,depth+1),EMPTY)
+    | ALL(x,p)                  =>  (case x of
+                                    VAR(y)     => TREE(pred,CreateTableau(predList,atomList,pred::allList,depth+1),EMPTY)
+                                    | _        => raise NotVAR)
 
+    fun findAtom(atom,[]) = (false,"")
+    | findAtom(atom,(a,idx)::atomList) = if (a = atom) then (true,idx) else findAtom(atom,atomList)
 
-    getDotFromTableau(tableau) = 
-    
+    fun printTerm(t) =
+    case t of
+    VAR(y)          => y
+    | CONST(c)      => c
+    | FUN(f,ls)     => f^"("^printTermList(ls)^")"
 
-    fun mktableau(predlist:Pred list,pred:Pred) : tableauTree =
+    and printTermList([]) = ""
+    | printTermList(t::[]) = printTerm(t)
+    | printTermList(t::ls) = printTerm(t)^","^printTermList(ls)
+
+    fun printPred(pred) = 
+    case pred of
+    FF                      => "\\bot"
+    | ATOM(s,ls)            => s^"("^printTermList(ls)^")"
+    | AND(p,q)              => printPred(p)^" \\wedge "^printPred(q)
+    | OR(p,q)               => printPred(p)^" \\vee "^printPred(q)
+    | COND(p,q)             => printPred(p)^" \\too "^printPred(q)
+    | BIC(p,q)              => printPred(p)^" \\leftrightarrow "^printPred(q)
+    | ITE(p,q,r)            => "if "^printPred(p)^" then "^printPred(q)^" else "^printPred(r)
+    | NOT(p)                => "\\neg "^printPred(p)
+    | EX(x,p)               => "\\exists "^printTerm(x)^"["^printPred(p)^"]"
+    | ALL(x,p)              => "\\forall "^printTerm(x)^"["^printPred(p)^"]"
+
+    fun printNode(pred,id) = "\t"^id^" [texlbl=\"\\underline{$"^printPred(pred)^"$ }\"];\n"
+
+    fun printRecursive(EMPTY,atomList,parentList,id) = ("","","")
+    | printRecursive(TREE(pred,left,right),atomList,parentList,id) = 
+    let
+        val nodes = printNode(pred,id) 
+        val edges = 
+        case pred of
+        FF                      => ""
+        | ATOM(s,ls)            => "\t\t"^id^" -> "^id^"1;\n"
+        | AND(p,q)              => "\t\t"^id^" -> "^id^"1;\n"
+        | OR(p,q)               => "\t\t"^id^" -> "^id^"1;\n"^"\t\t"^id^" -> "^id^"2;\n"
+        | COND(p,q)             => "\t\t"^id^" -> "^id^"1;\n"^"\t\t"^id^" -> "^id^"2;\n"
+        | BIC(p,q)              => "\t\t"^id^" -> "^id^"1;\n"
+        | ITE(p,q,r)            => "\t\t"^id^" -> "^id^"1;\n"^"\t\t"^id^" -> "^id^"2;\n"
+        | EX(x,p)               => "\t\t"^id^" -> "^id^"1;\n"
+        | ALL(x,p)              => "\t\t"^id^" -> "^id^"1;\n"
+        | NOT(p)                => (case p of
+                                    ATOM(a)             => "\t\t"^id^" -> "^id^"1;\n"
+                                    | AND(a,b)          => "\t\t"^id^" -> "^id^"1;\n"^"\t\t"^id^" -> "^id^"2;\n"
+                                    | OR(a,b)           => "\t\t"^id^" -> "^id^"1;\n"
+                                    | COND(a,b)         => "\t\t"^id^" -> "^id^"1;\n"
+                                    | BIC(a,b)          => "\t\t"^id^" -> "^id^"1;\n"^"\t\t"^id^" -> "^id^"2;\n"
+                                    | ITE(a,b,c)        => "\t\t"^id^" -> "^id^"1;\n"
+                                    | EX(x,p)           => "\t\t"^id^" -> "^id^"1;\n"
+                                    | ALL(x,p)          => "\t\t"^id^" -> "^id^"1;\n"
+                                    | _                 => raise NotWFP)
+        val (redEdges,newAtomList) = 
+        case pred of
+        ATOM(s,ls)            => let val (isPresent,idx) = findAtom(NOT(pred),atomList) in if isPresent then ("\t\t"^id^" -> "^idx^"\n",atomList) else ("",(pred,id)::atomList) end
+        | NOT(ATOM(s,ls))     => let val (isPresent,idx) = findAtom(ATOM(s,ls),atomList) in if isPresent then ("\t\t"^id^" -> "^idx^"\n",atomList) else ("",(pred,id)::atomList) end
+        | _                   => ("",atomList)  
+        val (nodes1,edges1,redEdges1) = printRecursive(left,newAtomList,parentList,id^"1")
+        val (nodes2,edges2,redEdges2) = printRecursive(right,newAtomList,parentList,id^"2")
+    in 
+        (nodes^nodes1^nodes2,edges^edges1^edges2,redEdges^redEdges1^redEdges2)
+    end                      
+
+    fun getDotFromTableau(tableau) = 
+    let
+        val (nodes,edges,redEdges) = printRecursive(tableau,[],[],"1")
+    in
+        "digraph{\n\tnodesep = 0.5;\n\tranksep = 0.35;\n\tnode [shape=plaintext];\n"^nodes^"\tsubgraph dir{\n"^edges^"\t}\n"^
+        (*"\tsubgraph ancestor{\n\t\tedge [dir=back, color=blue style=dashed];\n"^blueEdges^"\t}\n"^*) 
+        "\tsubgraph undir{\n\t\tedge [dir=none, color=red];\n"^redEdges^"\t}\n"^"}" 
+    end
+
+    fun mktableau(predlist:Pred list,pred:Pred) : unit =
     let 
         val newList = NOT(pred)::predlist
         val outstream = TextIO.openOut "tableau.dot"
         val tableau = CreateTableau(newList,[],[],0)
         val tableauOutput = getDotFromTableau(tableau)
     in
-        (* (TextIO.output(outstream,tableauOutput);TextIO.closeOut(outstream)) *)
-        tableau
+        (TextIO.output(outstream,tableauOutput);TextIO.closeOut(outstream))
     end
 
     fun getTableau(arg) = 
     case arg of
     HENCE(predlist,pred)    => mktableau(predlist,pred)
+    
 
 end

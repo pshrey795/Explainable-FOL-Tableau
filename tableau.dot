@@ -1,0 +1,32 @@
+digraph{
+	nodesep = 0.5;
+	ranksep = 0.35;
+	node [shape=plaintext];
+	1 [texlbl="\underline{$\neg q(B())$ }"];
+	11 [texlbl="\underline{$p(A())$ }"];
+	111 [texlbl="\underline{$\forall x[p(x) \wedge \neg p(H())]$ }"];
+	1111 [texlbl="\underline{$p(A()) \wedge \neg p(H())$ }"];
+	11111 [texlbl="\underline{$\neg p(H())$ }"];
+	111111 [texlbl="\underline{$p(B()) \wedge \neg p(H())$ }"];
+	1111111 [texlbl="\underline{$p(B())$ }"];
+	11111111 [texlbl="\underline{$p(B()) \wedge \neg p(H())$ }"];
+	111111111 [texlbl="\underline{$p(H()) \wedge \neg p(H())$ }"];
+	1111111111 [texlbl="\underline{$p(H())$ }"];
+	11111111111 [texlbl="\underline{$\bot$ }"];
+	subgraph dir{
+		1 -> 11;
+		11 -> 111;
+		111 -> 1111;
+		1111 -> 11111;
+		11111 -> 111111;
+		111111 -> 1111111;
+		1111111 -> 11111111;
+		11111111 -> 111111111;
+		111111111 -> 1111111111;
+		1111111111 -> 11111111111;
+	}
+	subgraph undir{
+		edge [dir=none, color=red];
+		1111111111 -> 11111
+	}
+}

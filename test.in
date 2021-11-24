@@ -1,1 +1,2 @@
-val a = FOL.HENCE([FOL.NOT(FOL.ATOM("p",[FOL.FUN("f",[FOL.VAR("a")])])),FOL.ALL(FOL.VAR("x"),FOL.ATOM("p",[FOL.FUN("f",[FOL.VAR("x")])]))],FOL.ATOM("q",[FOL.VAR("b")]))
+open FOL;
+val arg = HENCE ([ATOM ("p", [FUN ("A", [])]), ALL (VAR "x", AND (ATOM ("p", [VAR "x"]), NOT (ATOM ("p", [FUN ("H", [])]))))], ATOM ("q", [FUN ("B", [])]))

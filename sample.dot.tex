@@ -1,0 +1,141 @@
+\documentclass{article}
+\usepackage[x11names, svgnames, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+\usepackage{amsmath}
+%
+%
+
+%
+
+%
+
+\begin{document}
+\pagestyle{empty}
+%
+%
+%
+
+\enlargethispage{100cm}
+% Start of code
+% \begin{tikzpicture}[anchor=mid,>=latex',line join=bevel,]
+\begin{tikzpicture}[>=latex',line join=bevel,]
+  \pgfsetlinewidth{1bp}
+%%
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{1.0,1.0,1.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
+  \pgfsetfillcolor{fillcol}
+  \filldraw (0.0bp,0.0bp) -- (0.0bp,646.0bp) -- (132.5bp,646.0bp) -- (132.5bp,0.0bp) -- cycle;
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{1.0,1.0,1.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
+  \pgfsetfillcolor{fillcol}
+  \filldraw (0.0bp,0.0bp) -- (0.0bp,646.0bp) -- (132.5bp,646.0bp) -- (132.5bp,0.0bp) -- cycle;
+\end{scope}
+  \pgfsetcolor{black}
+  % Edge: 1 -> 11
+  \draw [->] (89.5bp,609.93bp) .. controls (89.5bp,605.45bp) and (89.5bp,600.49bp)  .. (89.5bp,585.23bp);
+  % Edge: 11 -> 111
+  \draw [->] (89.5bp,548.93bp) .. controls (89.5bp,544.45bp) and (89.5bp,539.49bp)  .. (89.5bp,524.23bp);
+  % Edge: 111 -> 1111
+  \draw [->] (89.5bp,487.93bp) .. controls (89.5bp,483.45bp) and (89.5bp,478.49bp)  .. (89.5bp,463.23bp);
+  % Edge: 1111 -> 11111
+  \draw [->] (89.5bp,426.93bp) .. controls (89.5bp,422.45bp) and (89.5bp,417.49bp)  .. (89.5bp,402.23bp);
+  % Edge: 11111 -> 111111
+  \draw [->] (77.352bp,365.93bp) .. controls (73.727bp,360.84bp) and (69.671bp,355.15bp)  .. (59.766bp,341.23bp);
+  % Edge: 111111 -> 1111111
+  \draw [->] (46.343bp,304.93bp) .. controls (46.031bp,300.33bp) and (45.685bp,295.22bp)  .. (44.668bp,280.23bp);
+  % Edge: 1111111 -> 11111111
+  \draw [->] (42.632bp,243.93bp) .. controls (42.404bp,239.45bp) and (42.152bp,234.49bp)  .. (41.376bp,219.23bp);
+  % Edge: 11111111 -> 111111111
+  \draw [->] (39.922bp,182.93bp) .. controls (39.769bp,178.45bp) and (39.601bp,173.49bp)  .. (39.084bp,158.23bp);
+  % Edge: 111111111 -> 1111111111
+  \draw [->] (52.094bp,121.93bp) .. controls (56.247bp,116.72bp) and (60.906bp,110.87bp)  .. (71.773bp,97.231bp);
+  % Edge: 1111111111 -> 11111111111
+  \draw [->] (85.5bp,60.935bp) .. controls (85.5bp,56.449bp) and (85.5bp,51.493bp)  .. (85.5bp,36.231bp);
+  % Edge: 1111111111 -> 11111
+  \pgfsetcolor{red}
+  \draw [] (96.877bp,97.066bp) .. controls (110.79bp,119.62bp) and (132.5bp,161.07bp)  .. (132.5bp,200.0bp) .. controls (132.5bp,263.0bp) and (132.5bp,263.0bp)  .. (132.5bp,263.0bp) .. controls (132.5bp,301.51bp) and (112.64bp,343.11bp)  .. (99.909bp,365.8bp);
+  % Node: 1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (89.5bp,628.0bp) node {\underline{$\neg q(B())$ }};
+\end{scope}
+  % Node: 11
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (89.5bp,567.0bp) node {\underline{$p(A())$ }};
+\end{scope}
+  % Node: 111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (89.5bp,506.0bp) node {\underline{$\forall x[p(x) \wedge \neg p(H())]$ }};
+\end{scope}
+  % Node: 1111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (89.5bp,445.0bp) node {\underline{$p(A()) \wedge \neg p(H())$ }};
+\end{scope}
+  % Node: 11111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (89.5bp,384.0bp) node {\underline{$\neg p(H())$ }};
+\end{scope}
+  % Node: 111111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (47.5bp,323.0bp) node {\underline{$p(B()) \wedge \neg p(H())$ }};
+\end{scope}
+  % Node: 1111111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (43.5bp,262.0bp) node {\underline{$p(B())$ }};
+\end{scope}
+  % Node: 11111111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (40.5bp,201.0bp) node {\underline{$p(B()) \wedge \neg p(H())$ }};
+\end{scope}
+  % Node: 111111111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (38.5bp,140.0bp) node {\underline{$p(H()) \wedge \neg p(H())$ }};
+\end{scope}
+  % Node: 1111111111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (85.5bp,79.0bp) node {\underline{$p(H())$ }};
+\end{scope}
+  % Node: 11111111111
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (85.5bp,18.0bp) node {\underline{$\bot$ }};
+\end{scope}
+%
+\end{tikzpicture}
+% End of code
+
+%
+\end{document}
+%
+
+
+
