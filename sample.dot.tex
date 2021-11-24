@@ -29,7 +29,7 @@
   \pgfsetstrokecolor{strokecol}
   \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
   \pgfsetfillcolor{fillcol}
-  \filldraw (0.0bp,0.0bp) -- (0.0bp,158.0bp) -- (54.0bp,158.0bp) -- (54.0bp,0.0bp) -- cycle;
+  \filldraw (0.0bp,0.0bp) -- (0.0bp,136.0bp) -- (54.0bp,136.0bp) -- (54.0bp,0.0bp) -- cycle;
 \end{scope}
 \begin{scope}
   \pgfsetstrokecolor{black}
@@ -37,7 +37,7 @@
   \pgfsetstrokecolor{strokecol}
   \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
   \pgfsetfillcolor{fillcol}
-  \filldraw (0.0bp,0.0bp) -- (0.0bp,158.0bp) -- (54.0bp,158.0bp) -- (54.0bp,0.0bp) -- cycle;
+  \filldraw (0.0bp,0.0bp) -- (0.0bp,136.0bp) -- (54.0bp,136.0bp) -- (54.0bp,0.0bp) -- cycle;
 \end{scope}
 \begin{scope}
   \pgfsetstrokecolor{black}
@@ -45,30 +45,33 @@
   \pgfsetstrokecolor{strokecol}
   \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
   \pgfsetfillcolor{fillcol}
-  \filldraw (0.0bp,0.0bp) -- (0.0bp,158.0bp) -- (54.0bp,158.0bp) -- (54.0bp,0.0bp) -- cycle;
+  \filldraw (0.0bp,0.0bp) -- (0.0bp,136.0bp) -- (54.0bp,136.0bp) -- (54.0bp,0.0bp) -- cycle;
 \end{scope}
   \pgfsetcolor{black}
   % Edge: 1 -> 11
-  \draw [->] (27.0bp,121.93bp) .. controls (27.0bp,117.45bp) and (27.0bp,112.49bp)  .. (27.0bp,97.231bp);
+  \draw [->] (14.015bp,99.942bp) .. controls (13.821bp,98.669bp) and (13.682bp,97.367bp)  .. (14.023bp,86.003bp);
   % Edge: 11 -> 111
-  \draw [->] (27.0bp,60.935bp) .. controls (27.0bp,56.449bp) and (27.0bp,51.493bp)  .. (27.0bp,36.231bp);
+  \draw [->] (27.0bp,49.942bp) .. controls (27.0bp,48.669bp) and (27.0bp,47.367bp)  .. (27.0bp,36.003bp);
+  % Edge: 11 -> 1
+  \pgfsetcolor{red}
+  \draw [] (39.977bp,86.003bp) .. controls (40.672bp,90.527bp) and (40.674bp,95.415bp)  .. (39.985bp,99.942bp);
   % Node: 1
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (27.0bp,140.0bp) node {\underline{$\neg p(c(a))$ }};
+  \draw (27.0bp,118.0bp) node {\underline{$\neg p(c())$ }};
 \end{scope}
   % Node: 11
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (27.0bp,79.0bp) node {\underline{$p(c(x))$ }};
+  \draw (27.0bp,68.0bp) node {\underline{$p(c())$ }};
 \end{scope}
   % Node: 111
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (27.0bp,18.0bp) node {111};
+  \draw (27.0bp,18.0bp) node {\underline{$\bot$ }};
 \end{scope}
 %
 \end{tikzpicture}

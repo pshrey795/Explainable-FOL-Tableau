@@ -80,6 +80,17 @@ struct
         substitute(t,x,pred)::explodeTerms(newList,x,pred)
     end
 
+    fun explodeChildTerms([],x,pred,id) = []
+    | explodeChildTerms(t::termList,x,pred,id) =
+    let
+        val newList = case t of 
+                        FUN(f,tl)   => tl@termList
+                        | VAR(y)    => raise NotClosed
+                        | CONST(c)  => termList
+    in
+        (substitute(t,x,pred),id)::explodeChildTerms(newList,x,pred,id)
+    end
+
     fun explodeAtoms([],x,pred) = []
     | explodeAtoms(atom::atomList,x,pred) = 
     case atom of
@@ -87,10 +98,17 @@ struct
     | NOT(ATOM(s,tl))   => explodeTerms(tl,x,pred)@explodeAtoms(atomList,x,pred)
     | _                 => raise NotWFT
 
+    fun explodeChildAtoms([],x,pred,id) = []
+    | explodeChildAtoms((atom,_)::atomList,x,pred,id) = 
+    case atom of
+    ATOM(s,tl)          => explodeChildTerms(tl,x,pred,id)@explodeChildAtoms(atomList,x,pred,id)
+    | NOT(ATOM(s,tl))   => explodeChildTerms(tl,x,pred,id)@explodeChildAtoms(atomList,x,pred,id)
+    | _                 => raise NotWFT
+
     fun CreateTableau([],atomList,[],depth) = EMPTY
     | CreateTableau([],atomList,allPred::allList,depth) =
     (case allPred of
-    ALL(x,p)                    => CreateTableau(explodeAtoms(atomList,x,p),atomList,allList@[allPred],depth)
+    ALL(x,p)                    => TREE(allPred,CreateTableau(explodeAtoms(atomList,x,p),atomList,allList@[allPred],depth+1),EMPTY)
     | _                         => raise NotWFP)
     | CreateTableau(pred::predList,atomList,allList,depth) =
     case pred of
@@ -113,15 +131,15 @@ struct
                                     | COND(a,b)     => TREE(pred,CreateTableau(a::NOT(b)::predList,atomList,allList,depth+1),EMPTY)
                                     | BIC(a,b)      => TREE(pred,CreateTableau(NOT(COND(a,b))::predList,atomList,allList,depth+1),CreateTableau(NOT(COND(b,a))::predList,atomList,allList,depth+1))
                                     | ITE(a,b,c)    => TREE(pred,CreateTableau(OR(NOT(a),NOT(b))::OR(a,NOT(c))::predList,atomList,allList,depth+1),EMPTY)
-                                    | ALL(x,p)      => let
+                                    | ALL(x,b)      => let
                                                             val freshTerm = CONST("b"^Int.toString(depth))
                                                             val freshName = "a"^Int.toString(depth)
                                                             val freshAtom = ATOM(freshName,[freshTerm])
-                                                            val newList = substitute(freshTerm,x,NOT(p))::predList
+                                                            val newList = substitute(freshTerm,x,NOT(b))::predList
                                                         in
                                                             TREE(pred,CreateTableau(newList,freshAtom::atomList,allList,depth+1),EMPTY)
                                                         end
-                                    | EX(x,p)       => TREE(pred,CreateTableau(predList,atomList,ALL(x,NOT(p))::allList,depth+1),EMPTY)
+                                    | EX(x,b)       => CreateTableau(predList,atomList,ALL(x,NOT(b))::allList,depth)
                                     | _             => raise NotWFP)
     | EX(x,p)                   =>  let
                                         val freshTerm = CONST("b"^Int.toString(depth))
@@ -134,7 +152,7 @@ struct
                                         | _      => raise NotVAR
                                     end
     | ALL(x,p)                  =>  (case x of
-                                    VAR(y)     => TREE(pred,CreateTableau(predList,atomList,pred::allList,depth+1),EMPTY)
+                                    VAR(y)     => CreateTableau(predList,atomList,pred::allList,depth)
                                     | _        => raise NotVAR)
 
     fun findAtom(atom,[]) = (false,"")
@@ -178,7 +196,10 @@ struct
     let
         val nodes = printNode(pred,id) 
         val edges = 
-        case pred of
+        case left of 
+        EMPTY                   => ""
+        | _                     =>
+        (case pred of
         FF                      => ""
         | ATOM(s,ls)            => "\t\t"^id^" -> "^id^"1;\n"
         | AND(p,q)              => "\t\t"^id^" -> "^id^"1;\n"
@@ -195,9 +216,9 @@ struct
                                     | COND(a,b)         => "\t\t"^id^" -> "^id^"1;\n"
                                     | BIC(a,b)          => "\t\t"^id^" -> "^id^"1;\n"^"\t\t"^id^" -> "^id^"2;\n"
                                     | ITE(a,b,c)        => "\t\t"^id^" -> "^id^"1;\n"
-                                    | EX(x,p)           => "\t\t"^id^" -> "^id^"1;\n"
-                                    | ALL(x,p)          => "\t\t"^id^" -> "^id^"1;\n"
-                                    | _                 => raise NotWFP)
+                                    | EX(x,b)           => "\t\t"^id^" -> "^id^"1;\n"
+                                    | ALL(x,b)          => "\t\t"^id^" -> "^id^"1;\n"
+                                    | _                 => raise NotWFP))
         val (redEdges,newAtomList) = 
         case pred of
         ATOM(s,ls)            => let val (isPresent,idx) = findAtom(NOT(pred),atomList) in if isPresent then ("\t\t"^id^" -> "^idx^";\n",atomList) else ("",(pred,id)::atomList) end
@@ -211,10 +232,12 @@ struct
             case pred of
             AND(p,q)                => (q,id)::result
             | BIC(p,q)              => (COND(q,p),id)::result
+            | ALL(x,p)              => explodeChildAtoms(atomList,x,p,id)@result
             | NOT(p)                => (case p of
                                        OR(a,b)          => (NOT(b),id)::result
                                        | COND(a,b)      => (NOT(b),id)::result
                                        | ITE(a,b,c)     => (OR(a,NOT(c)),id)::result
+                                       | EX(x,b)        => explodeChildAtoms(atomList,x,NOT(b),id)@result
                                        | _              => result)
             | _                     => result
         in
@@ -230,7 +253,7 @@ struct
     let
         val (nodes,edges,blueEdges,redEdges) = printRecursive(tableau,[],[],"1")
     in
-        "digraph{\n\tnodesep = 0.5;\n\tranksep = 0.35;\n\tnode [shape=plaintext];\n"^nodes^"\tsubgraph dir{\n"^edges^"\t}\n"^
+        "digraph{\n\tnodesep = 0.5;\n\tranksep = 0.20;\n\tnode [shape=plaintext];\n"^nodes^"\tsubgraph dir{\n"^edges^"\t}\n"^
         "\tsubgraph ancestor{\n\t\tedge [dir=back, color=blue style=dashed];\n"^blueEdges^"\t}\n"^ 
         "\tsubgraph undir{\n\t\tedge [dir=none, color=red];\n"^redEdges^"\t}\n"^"}" 
     end

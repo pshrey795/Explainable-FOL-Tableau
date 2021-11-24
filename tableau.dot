@@ -1,9 +1,10 @@
 digraph{
 	nodesep = 0.5;
-	ranksep = 0.35;
+	ranksep = 0.20;
 	node [shape=plaintext];
-	1 [texlbl="\underline{$\neg p(c(a))$ }"];
-	11 [texlbl="\underline{$p(c(x))$ }"];
+	1 [texlbl="\underline{$\neg p(c())$ }"];
+	11 [texlbl="\underline{$p(c())$ }"];
+	111 [texlbl="\underline{$\bot$ }"];
 	subgraph dir{
 		1 -> 11;
 		11 -> 111;
@@ -13,5 +14,6 @@ digraph{
 	}
 	subgraph undir{
 		edge [dir=none, color=red];
+		11 -> 1;
 	}
 }

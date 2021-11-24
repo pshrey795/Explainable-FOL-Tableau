@@ -1,2 +1,2 @@
 open FOL;
-val arg = HENCE ([ATOM ("p", [FUN ("c", [VAR "x"])])], ATOM ("p", [FUN ("c", [CONST "a"])]));
+val arg = HENCE ([ATOM ("p", [FUN ("c", [])]), ATOM ("q", [FUN ("d", [])]), BIC (ATOM ("a", []), ATOM ("r", [FUN ("y", [])]))], ATOM ("p", [FUN ("c", [])]))
