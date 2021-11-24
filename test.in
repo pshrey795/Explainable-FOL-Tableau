@@ -1,2 +1,2 @@
 open FOL;
-val arg = HENCE ([ATOM ("p", [FUN ("A", [])]), ALL (VAR "x", AND (ATOM ("p", [VAR "x"]), NOT (ATOM ("p", [FUN ("H", [])]))))], ATOM ("q", [FUN ("B", [])]))
+val arg = HENCE ([ATOM ("p", [FUN ("c", [VAR "x"])])], ATOM ("p", [FUN ("c", [CONST "a"])]));

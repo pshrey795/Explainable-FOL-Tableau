@@ -140,6 +140,14 @@ struct
     fun findAtom(atom,[]) = (false,"")
     | findAtom(atom,(a,idx)::atomList) = if (a = atom) then (true,idx) else findAtom(atom,atomList)
 
+    fun reverseList([],answer) = answer
+    | reverseList(ls::result,answer) = reverseList(result,ls::answer)
+
+    fun findParent(pred,[],isValid,parentIndex,result) = (isValid,reverseList(result,[]),parentIndex)
+    | findParent(pred,(p,idx)::parentList,isValid,parentIndex,result) = 
+    if (p=pred) then findParent(pred,parentList,true,idx,result) else findParent(pred,parentList,isValid,parentIndex,(p,idx)::result)
+
+
     fun printTerm(t) =
     case t of
     VAR(y)          => y
@@ -165,7 +173,7 @@ struct
 
     fun printNode(pred,id) = "\t"^id^" [texlbl=\"\\underline{$"^printPred(pred)^"$ }\"];\n"
 
-    fun printRecursive(EMPTY,atomList,parentList,id) = ("","","")
+    fun printRecursive(EMPTY,atomList,parentList,id) = ("","","","")
     | printRecursive(TREE(pred,left,right),atomList,parentList,id) = 
     let
         val nodes = printNode(pred,id) 
@@ -192,21 +200,38 @@ struct
                                     | _                 => raise NotWFP)
         val (redEdges,newAtomList) = 
         case pred of
-        ATOM(s,ls)            => let val (isPresent,idx) = findAtom(NOT(pred),atomList) in if isPresent then ("\t\t"^id^" -> "^idx^"\n",atomList) else ("",(pred,id)::atomList) end
-        | NOT(ATOM(s,ls))     => let val (isPresent,idx) = findAtom(ATOM(s,ls),atomList) in if isPresent then ("\t\t"^id^" -> "^idx^"\n",atomList) else ("",(pred,id)::atomList) end
-        | _                   => ("",atomList)  
-        val (nodes1,edges1,redEdges1) = printRecursive(left,newAtomList,parentList,id^"1")
-        val (nodes2,edges2,redEdges2) = printRecursive(right,newAtomList,parentList,id^"2")
+        ATOM(s,ls)            => let val (isPresent,idx) = findAtom(NOT(pred),atomList) in if isPresent then ("\t\t"^id^" -> "^idx^";\n",atomList) else ("",(pred,id)::atomList) end
+        | NOT(ATOM(s,ls))     => let val (isPresent,idx) = findAtom(ATOM(s,ls),atomList) in if isPresent then ("\t\t"^id^" -> "^idx^";\n",atomList) else ("",(pred,id)::atomList) end
+        | _                   => ("",atomList)
+        val (blueEdges,newParentList) =
+        let
+            val (isPresent,result,idx) = findParent(pred,parentList,false,"",[])
+            val updatedBlueEdges = if isPresent then "\t\t"^idx^" -> "^id^";\n" else ""
+            val updatedParentList = 
+            case pred of
+            AND(p,q)                => (q,id)::result
+            | BIC(p,q)              => (COND(q,p),id)::result
+            | NOT(p)                => (case p of
+                                       OR(a,b)          => (NOT(b),id)::result
+                                       | COND(a,b)      => (NOT(b),id)::result
+                                       | ITE(a,b,c)     => (OR(a,NOT(c)),id)::result
+                                       | _              => result)
+            | _                     => result
+        in
+            (updatedBlueEdges,updatedParentList)
+        end 
+        val (nodes1,edges1,blueEdges1,redEdges1) = printRecursive(left,newAtomList,newParentList,id^"1")
+        val (nodes2,edges2,blueEdges2,redEdges2) = printRecursive(right,newAtomList,newParentList,id^"2")
     in 
-        (nodes^nodes1^nodes2,edges^edges1^edges2,redEdges^redEdges1^redEdges2)
+        (nodes^nodes1^nodes2,edges^edges1^edges2,blueEdges^blueEdges1^blueEdges2,redEdges^redEdges1^redEdges2)
     end                      
 
     fun getDotFromTableau(tableau) = 
     let
-        val (nodes,edges,redEdges) = printRecursive(tableau,[],[],"1")
+        val (nodes,edges,blueEdges,redEdges) = printRecursive(tableau,[],[],"1")
     in
         "digraph{\n\tnodesep = 0.5;\n\tranksep = 0.35;\n\tnode [shape=plaintext];\n"^nodes^"\tsubgraph dir{\n"^edges^"\t}\n"^
-        (*"\tsubgraph ancestor{\n\t\tedge [dir=back, color=blue style=dashed];\n"^blueEdges^"\t}\n"^*) 
+        "\tsubgraph ancestor{\n\t\tedge [dir=back, color=blue style=dashed];\n"^blueEdges^"\t}\n"^ 
         "\tsubgraph undir{\n\t\tedge [dir=none, color=red];\n"^redEdges^"\t}\n"^"}" 
     end
 
